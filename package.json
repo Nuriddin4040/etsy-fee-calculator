@@ -7,5 +7,10 @@
     "build": "node build.js",
     "start": "node build.js && npx --yes serve dist -l 3000"
   },
+  "dependencies": {
+    "@fontsource-variable/bricolage-grotesque": "^5.3.0",
+    "@fontsource-variable/instrument-sans": "^5.3.0",
+    "@fontsource/dm-mono": "^5.3.0"
+  },
   "engines": { "node": ">=18" }
 }
