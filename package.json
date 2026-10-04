@@ -1,0 +1,11 @@
+{
+  "name": "etsy-fee-calculator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Etsy fee calculator: static SEO page plus a tiny email-capture API",
+  "scripts": {
+    "build": "node build.js",
+    "start": "node build.js && npx --yes serve dist -l 3000"
+  },
+  "engines": { "node": ">=18" }
+}
