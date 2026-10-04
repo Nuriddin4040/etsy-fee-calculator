@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Etsy Fee Calculator 2026: Fees by Country &amp; Profit</title>
+<meta name="description" content="Free Etsy fee calculator for 2026: listing, transaction, processing and ads fees for {{COUNTRY_COUNT}} countries and digital products, plus the price you need for your profit.">
+<link rel="canonical" href="{{SITE_URL}}/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+{{GSC_META}}
+<meta name="theme-color" content="#edf0ec">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Etsy Fee Calculator">
+<meta property="og:title" content="Etsy Fee Calculator 2026: Fees by Country &amp; Profit">
+<meta property="og:description" content="See what Etsy keeps from every sale and what price you need to hit your profit. Rates for {{COUNTRY_COUNT}} countries and digital products.">
+<meta property="og:url" content="{{SITE_URL}}/">
+<meta property="og:image" content="{{SITE_URL}}/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2317212b'/%3E%3Cpath d='M18 14h28v36l-5-4-5 4-4-4-4 4-5-4-5 4z' fill='%23fff'/%3E%3Crect x='24' y='22' width='16' height='4' fill='%230b7a53'/%3E%3Crect x='24' y='30' width='11' height='3' fill='%23a3294f'/%3E%3C/svg%3E">
+<link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/instrument-sans.woff2" as="font" type="font/woff2" crossorigin>
+<style>{{CSS}}</style>
+<script type="application/ld+json">{{JSONLD}}</script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="mark" href="/">Etsy Fee Calculator</a>
+    <nav aria-label="Sections">
+      <a href="#calculator">Calculator</a>
+      <a href="#digital-products">Digital products</a>
+      <a href="#by-country">By country</a>
+      <a href="#offsite-ads">Offsite Ads</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero" id="calculator" aria-labelledby="h1">
+  <div class="wrap hero-grid">
+    <div>
+      <h1 id="h1">Etsy fee calculator</h1>
+      <p class="lede">Enter a price and see what Etsy keeps: listing fee, transaction fee, payment processing and ads. Then see what you take home. Built from Etsy's own 2026 fee pages, for sellers in {{COUNTRY_COUNT}} countries.</p>
+
+      <div class="calc">
+        <div>
+          <div class="seg" role="group" aria-label="What do you want to find out?">
+            <button type="button" id="mode-fees" aria-pressed="true">Fees from price</button>
+            <button type="button" id="mode-price" aria-pressed="false">Price from profit</button>
+          </div>
+          <div class="seg" role="group" aria-label="Product type">
+            <button type="button" id="type-physical" aria-pressed="true">Physical item</button>
+            <button type="button" id="type-digital" aria-pressed="false">Digital download</button>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="field full">
+            <label for="country">Country of your bank account</label>
+            <select id="country">{{COUNTRY_OPTIONS}}</select>
+            <span class="hint">Payment processing fees depend on where your bank account is.</span>
+          </div>
+
+          <div class="field" id="f-price">
+            <label for="price">Item price</label>
+            <div class="inp"><span class="cur">$</span><input id="price" inputmode="decimal" autocomplete="off" value="25"></div>
+          </div>
+          <div class="field" id="f-target" hidden>
+            <label for="target">Profit you want per sale</label>
+            <div class="inp"><span class="cur">$</span><input id="target" inputmode="decimal" autocomplete="off" value="10"></div>
+          </div>
+          <div class="field" id="f-shipping">
+            <label for="shipping" id="shipping-label">Shipping you charge the buyer</label>
+            <div class="inp"><span class="cur">$</span><input id="shipping" inputmode="decimal" autocomplete="off" value="5"></div>
+            <span class="hint">Etsy takes its percentage fees on shipping too.</span>
+          </div>
+          <div class="field">
+            <label for="cogs" id="cogs-label">Cost to make one</label>
+            <div class="inp"><span class="cur">$</span><input id="cogs" inputmode="decimal" autocomplete="off" value="6"></div>
+            <span class="hint" id="cogs-hint">Materials, packaging, print costs.</span>
+          </div>
+          <div class="field" id="f-postage">
+            <label for="postage">Postage you pay</label>
+            <div class="inp"><span class="cur">$</span><input id="postage" inputmode="decimal" autocomplete="off" value="4"></div>
+            <span class="hint">What the shipping label costs you.</span>
+          </div>
+
+          <div class="field full">
+            <label for="ads">Did the sale come from an Etsy Offsite Ad?</label>
+            <select id="ads">
+              <option value="0">No</option>
+              <option value="15">Yes, 15% (shop under $10,000 in the last 12 months)</option>
+              <option value="12">Yes, 12% (shop at $10,000 or more)</option>
+            </select>
+          </div>
+          <div class="field full checks">
+            <label id="c-intl" hidden><input type="checkbox" id="intl"> <span>International order (buyer outside your country)</span></label>
+            <label><input type="checkbox" id="conv"> <span>I list in a different currency than my bank account (2.5% conversion fee)</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="receipt-wrap" id="receipt-anchor">
+      <div class="receipt" id="receipt" aria-live="polite">Loading calculator…</div>
+      <p class="receipt-note">Estimate for one sale. It leaves out sales tax, VAT on fees, Etsy Ads, Etsy Plus, deposit fees and refunds. Rates checked against Etsy's fee pages in October 2026.</p>
+      <noscript><p class="receipt-note">The calculator needs JavaScript. The fee tables below work without it.</p></noscript>
+    </div>
+  </div>
+</section>
+
+<section class="lead" id="cheat-sheet" aria-labelledby="lead-h">
+  <div class="wrap lead-grid">
+    <div>
+      <h2 id="lead-h">Free Etsy pricing cheat sheet</h2>
+      <p>A three-page PDF you can keep next to your listing screen. It shows the fees Etsy charges in 2026 and the lowest price that still pays you.</p>
+      <ul>
+        <li>The full Etsy fee stack on one page</li>
+        <li>Minimum prices for five cost levels, with and without Offsite Ads</li>
+        <li>Why a $2 digital download loses about a third of its price to fees</li>
+        <li>Seven ways to keep more of each sale</li>
+      </ul>
+    </div>
+    <div>
+      <form id="lead-form" novalidate>
+        <label for="lead-email" class="small">Where should we send it?</label>
+        <input type="email" id="lead-email" name="email" placeholder="you@example.com" autocomplete="email" required>
+        <div class="hp" aria-hidden="true"><label>Company <input type="text" id="lead-company" tabindex="-1" autocomplete="off"></label></div>
+        <button class="btn" id="lead-btn" type="submit">Get the cheat sheet</button>
+        <div class="msg" id="lead-msg" role="status"></div>
+        <p class="small">One short email with tips now and then. Unsubscribe any time.</p>
+      </form>
+      <div class="done" id="lead-done" hidden>
+        <p><strong>Your cheat sheet is ready.</strong></p>
+        <a class="btn" id="lead-download" href="/etsy-fee-cheat-sheet-2026.pdf" download>Download the PDF</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<article class="article">
+  <div class="wrap">
+    {{ARTICLE}}
+  </div>
+</article>
+
+<section class="toolkit" aria-labelledby="tk-h">
+  <div class="wrap">
+    <h2 id="tk-h">Track your real profit, not just one sale</h2>
+    <p>This calculator shows one sale. The Online Seller Profit Toolkit is a spreadsheet for the whole shop: a fee calculator with editable rates for Etsy, Amazon, Shopify and eBay, a monthly profit and loss sheet, an inventory tracker and a dashboard with a chart.</p>
+    <p>It is an Excel file, so you keep the numbers on your own computer.</p>
+    <p><a class="btn dark" href="{{GUMROAD_URL}}" target="_blank" rel="noopener">See the toolkit on Gumroad, $19</a></p>
+  </div>
+</section>
+
+<section class="faq" id="faq" aria-labelledby="faq-h">
+  <div class="wrap">
+    <h2 id="faq-h">Etsy fees: common questions</h2>
+    {{FAQ}}
+    <h2>Sources</h2>
+    <ul>
+      <li><a href="https://www.etsy.com/legal/fees" rel="noopener">Etsy Fees &amp; Payments Policy</a>: listing, transaction, Offsite Ads and currency conversion fees</li>
+      <li><a href="https://www.etsy.com/legal/etsy-payments" rel="noopener">Etsy Payments Policy</a>: payment processing fees by country</li>
+      <li><a href="https://help.etsy.com/hc/en-us/articles/1500011073202" rel="noopener">What is a Regulatory Operating Fee?</a> (Etsy Help Center)</li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<div class="sticky-keep" id="sticky" hidden><a href="#receipt-anchor" id="sticky-link"><span>You keep</span> <strong id="sticky-val"></strong> <em id="sticky-sub"></em></a></div>
+
+<footer>
+  <div class="wrap">
+    <p>This site is an independent tool and is not affiliated with, endorsed by or sponsored by Etsy, Inc. Etsy is a trademark of Etsy, Inc.</p>
+    <p>Figures are estimates. Etsy can change its fees at any time, so check your own payment account and <a href="https://www.etsy.com/legal/fees" rel="noopener">Etsy's current fee policy</a> before you make pricing decisions. This is not tax or financial advice.</p>
+    <p>If you sign up for the cheat sheet, we keep your email address only to send occasional seller tips. Reply to any of our emails and we will delete it.</p>
+  </div>
+</footer>
+
+<script>{{FEES_JS}}</script>
+<script>{{APP_JS}}</script>
+</body>
+</html>
