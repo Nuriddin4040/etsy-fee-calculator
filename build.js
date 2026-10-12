@@ -36,6 +36,7 @@ function exTable(caption, inp) {
   add(`Payment processing (${pct(r.ppPct, 1)} + ${money(r.ppFlat, cur)})`, '−' + m(r.processing));
   if (r.regulatory > 0) add(`Regulatory operating fee (${pct(r.country.regRate / 100, 2)})`, '−' + m(r.regulatory));
   if (r.ads > 0) add('Offsite Ads fee', '−' + m(r.ads));
+  if (r.conversion > 0) add('Currency conversion (2.5%)', '−' + m(r.conversion));
   add(`Total Etsy fees (${pct(r.feePct, 1)} of the sale)`, m(r.fees), 'sum');
   add('Left after Etsy fees', m(r.gross - r.fees), 'keep');
   return `<div class="tbl"><table><caption>${caption}</caption><tbody>${rows}</tbody></table></div>`;
@@ -124,11 +125,13 @@ ${exTable('Example: UK seller, £20 item with £3 shipping, no ads', ukInp)}
 
 <h3 id="etsy-fees-canada">Etsy fee calculator for Canadian sellers</h3>
 <p>Canadian sellers pay 3% + CA$0.25 on domestic orders and on orders from the US, and 4% + CA$0.25 on other international orders. A 0.50% regulatory operating fee applies as well. Tick "International order" in the calculator to switch to the higher rate.</p>
+<p>Full guide with US vs international orders, GST/HST on fees and more examples: <a href="/etsy-fees-canada">Etsy fee calculator for Canada</a>.</p>
 <p class="use"><button type="button" data-preset="ca">Use Canada rates</button></p>
 ${exTable('Example: Canadian seller, CA$30 item with CA$8 shipping, domestic order, no ads', caInp)}
 
 <h3 id="etsy-fees-australia">Etsy fee calculator for Australian sellers</h3>
 <p>Australian sellers pay 3% + A$0.25 on domestic orders and 4% + A$0.25 on international orders. Etsy lists no regulatory operating fee for Australia.</p>
+<p>Full guide with domestic vs international examples, GST on fees and pricing in AUD: <a href="/etsy-fees-australia">Etsy fee calculator for Australia</a>.</p>
 <p class="use"><button type="button" data-preset="au">Use Australia rates</button></p>
 ${exTable('Example: Australian seller, A$35 item with A$7 shipping, domestic order, no ads', auInp)}
 
@@ -170,26 +173,6 @@ const FAQ = [
 ];
 const FAQ_HTML = FAQ.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('\n');
 
-const JSONLD = JSON.stringify({
-  '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'WebApplication',
-      name: 'Etsy Fee Calculator',
-      url: SITE_URL + '/',
-      applicationCategory: 'BusinessApplication',
-      operatingSystem: 'Any',
-      description: 'Free calculator for Etsy seller fees in 2026, with rates for ' + F.countries.length + ' countries, digital products and a price-from-profit mode.',
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-      dateModified: TODAY
-    },
-    {
-      '@type': 'FAQPage',
-      mainEntity: FAQ.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } }))
-    }
-  ]
-}).replace(/</g, '\\u003c');
-
 /* ---------- assemble ---------- */
 const fontFaces = `
 @font-face{font-family:'Bricolage Grotesque';src:url(/fonts/bricolage-grotesque.woff2) format('woff2');font-weight:200 800;font-display:swap}
@@ -198,29 +181,88 @@ const fontFaces = `
 @font-face{font-family:'DM Mono';src:url(/fonts/dm-mono-500.woff2) format('woff2');font-weight:500;font-display:swap}
 `;
 const css = fontFaces + fs.readFileSync(path.join(root, 'src/style.css'), 'utf8');
-const options = F.countries.map((c) => `<option value="${c.id}">${esc(c.name)} (${c.currency})</option>`).join('');
+const optionsFor = (sel) => F.countries.map((c) => `<option value="${c.id}"${c.id === sel ? ' selected' : ''}>${esc(c.name)} (${c.currency})</option>`).join('');
 
-let html = fs.readFileSync(path.join(root, 'src/index.template.html'), 'utf8');
-const map = {
-  CSS: css,
-  FEES_JS: fs.readFileSync(path.join(root, 'src/fees.js'), 'utf8'),
-  APP_JS: fs.readFileSync(path.join(root, 'src/app.js'), 'utf8'),
-  ARTICLE, FAQ: FAQ_HTML, JSONLD,
-  COUNTRY_OPTIONS: options,
-  COUNTRY_COUNT: String(F.countries.length),
-  GUMROAD_URL, SITE_URL,
-  GSC_META: process.env.GOOGLE_SITE_VERIFICATION
-    ? '<meta name="google-site-verification" content="' + esc(process.env.GOOGLE_SITE_VERIFICATION) + '">'
-    : ''
-};
-// replace with a function so "$" in the content is never treated as a regex replacement pattern
-for (const k of Object.keys(map)) html = html.split('{{' + k + '}}').join(map[k]);
-const left = html.match(/\{\{[A-Z_]+\}\}/g);
-if (left) throw new Error('Unreplaced tokens: ' + left.join(', '));
+const template = fs.readFileSync(path.join(root, 'src/index.template.html'), 'utf8');
+const navHtml = (items) => items.map(([href, label]) => `<a href="${href}">${label}</a>`).join('\n      ');
+const HOME_SOURCES = [
+  '<li><a href="https://www.etsy.com/legal/fees" rel="noopener">Etsy Fees &amp; Payments Policy</a>: listing, transaction, Offsite Ads and currency conversion fees</li>',
+  '<li><a href="https://www.etsy.com/legal/etsy-payments" rel="noopener">Etsy Payments Policy</a>: payment processing fees by country</li>',
+  '<li><a href="https://help.etsy.com/hc/en-us/articles/1500011073202" rel="noopener">What is a Regulatory Operating Fee?</a> (Etsy Help Center)</li>'
+].join('\n      ');
+
+const pages = [{
+  file: 'index.html',
+  path: '/',
+  defaultCountry: 'us',
+  title: 'Etsy Fee Calculator 2026: Fees by Country &amp; Profit',
+  desc: 'Free Etsy fee calculator for 2026: listing, transaction, processing and ads fees for ' + F.countries.length + ' countries and digital products, plus the price you need for your profit.',
+  ogDesc: 'See what Etsy keeps from every sale and what price you need to hit your profit. Rates for ' + F.countries.length + ' countries and digital products.',
+  h1: 'Etsy fee calculator',
+  lede: "Enter a price and see what Etsy keeps: listing fee, transaction fee, payment processing and ads. Then see what you take home. Built from Etsy's own 2026 fee pages, for sellers in " + F.countries.length + ' countries.',
+  nav: [['#calculator', 'Calculator'], ['#digital-products', 'Digital products'], ['#by-country', 'By country'], ['#offsite-ads', 'Offsite Ads'], ['#faq', 'FAQ']],
+  article: ARTICLE,
+  faqH: 'Etsy fees: common questions',
+  faqHtml: FAQ_HTML,
+  faqEntities: FAQ.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
+  sources: HOME_SOURCES,
+  appName: 'Etsy Fee Calculator'
+}].concat(require('./src/country-pages.js')({ F, money, pct, esc, exTable }));
+
+function jsonld(pg) {
+  const graph = [
+    {
+      '@type': 'WebApplication',
+      name: pg.appName,
+      url: SITE_URL + pg.path,
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'Any',
+      description: pg.desc,
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      dateModified: TODAY
+    },
+    { '@type': 'FAQPage', mainEntity: pg.faqEntities }
+  ];
+  if (pg.breadcrumb) {
+    graph.push({
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Etsy Fee Calculator', item: SITE_URL + '/' },
+        { '@type': 'ListItem', position: 2, name: pg.breadcrumb, item: SITE_URL + pg.path }
+      ]
+    });
+  }
+  return JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c');
+}
 
 fs.rmSync(dist, { recursive: true, force: true });
 fs.mkdirSync(path.join(dist, 'fonts'), { recursive: true });
-fs.writeFileSync(path.join(dist, 'index.html'), html);
+
+for (const pg of pages) {
+  const map = {
+    CSS: css,
+    FEES_JS: fs.readFileSync(path.join(root, 'src/fees.js'), 'utf8'),
+    APP_JS: fs.readFileSync(path.join(root, 'src/app.js'), 'utf8'),
+    TITLE: pg.title, DESC: esc(pg.desc), OG_DESC: esc(pg.ogDesc), PATH: pg.path,
+    NAV: navHtml(pg.nav), H1: pg.h1, LEDE: esc(pg.lede),
+    DEFAULT_COUNTRY: pg.defaultCountry,
+    ARTICLE: pg.article, FAQ: pg.faqHtml, FAQ_H: pg.faqH, SOURCES: pg.sources,
+    JSONLD: jsonld(pg),
+    COUNTRY_OPTIONS: optionsFor(pg.defaultCountry),
+    COUNTRY_COUNT: String(F.countries.length),
+    GUMROAD_URL, SITE_URL,
+    GSC_META: process.env.GOOGLE_SITE_VERIFICATION
+      ? '<meta name="google-site-verification" content="' + esc(process.env.GOOGLE_SITE_VERIFICATION) + '">'
+      : ''
+  };
+  // split/join so "$" in the content is never treated as a regex replacement pattern
+  let html = template;
+  for (const k of Object.keys(map)) html = html.split('{{' + k + '}}').join(map[k]);
+  const left = html.match(/\{\{[A-Z_]+\}\}/g);
+  if (left) throw new Error(pg.file + ': unreplaced tokens: ' + left.join(', '));
+  fs.writeFileSync(path.join(dist, pg.file), html);
+  console.log('Built', pg.file, '-', Math.round(html.length / 1024) + ' KB');
+}
 
 const nm = path.join(root, 'node_modules');
 const fonts = {
@@ -237,7 +279,9 @@ const pub = path.join(root, 'public');
 if (fs.existsSync(pub)) fs.cpSync(pub, dist, { recursive: true });
 
 fs.writeFileSync(path.join(dist, 'robots.txt'), `User-agent: *\nAllow: /\nDisallow: /api/\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
+const urls = pages.map((pg) =>
+  `  <url><loc>${SITE_URL}${pg.path}</loc><lastmod>${TODAY}</lastmod><changefreq>monthly</changefreq><priority>${pg.path === '/' ? '1.0' : '0.8'}</priority></url>`).join('\n');
 fs.writeFileSync(path.join(dist, 'sitemap.xml'),
-  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${SITE_URL}/</loc><lastmod>${TODAY}</lastmod><changefreq>monthly</changefreq><priority>1.0</priority></url>\n</urlset>\n`);
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
 
-console.log('Built dist/ for', SITE_URL, '-', Math.round(html.length / 1024) + ' KB html');
+console.log('Built dist/ for', SITE_URL);

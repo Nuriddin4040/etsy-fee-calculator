@@ -8,7 +8,7 @@
     digital: { price: '10', shipping: '0', cogs: '0', postage: '0', target: '8' }
   };
   var vals = { physical: Object.assign({}, DEFAULTS.physical), digital: Object.assign({}, DEFAULTS.digital) };
-  var state = { mode: 'fees', type: 'physical', country: 'us' };
+  var state = { mode: 'fees', type: 'physical', country: (document.body.getAttribute('data-country') || 'us') };
   var ids = ['price', 'shipping', 'cogs', 'postage', 'target'];
 
   function num(v) {
@@ -99,6 +99,12 @@
     $('f-shipping').hidden = digital;
     $('f-postage').hidden = digital;
     $('c-intl').hidden = c.ppRateIntl == null;
+    var intlText = document.querySelector('#c-intl span');
+    if (intlText) {
+      intlText.textContent = c.id === 'ca'
+        ? 'Buyer outside Canada and the US (4% processing rate)'
+        : 'International order (buyer outside your country)';
+    }
     $('f-target').hidden = state.mode !== 'price';
     $('f-price').hidden = state.mode === 'price';
     $('shipping-label').textContent = state.mode === 'price' ? 'Shipping you charge the buyer' : 'Shipping you charge the buyer';
@@ -164,6 +170,8 @@
       else if (x === 'price') setMode('price');
       else if (x === 'fees') setMode('fees');
       else if (x === 'uk') setCountry('gb');
+      else if (x === 'intl') $('intl').checked = true;
+      else if (x === 'dom') $('intl').checked = false;
       else if (F.countries.some(function (c) { return c.id === x; })) setCountry(x);
     });
     render();
@@ -200,7 +208,7 @@
       fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email, company: $('lead-company').value, source: location.hash || 'home' })
+        body: JSON.stringify({ email: email, company: $('lead-company').value, source: (location.pathname.replace(/^\/|\.html$/g, '') || 'home') + (location.hash || '') })
       }).then(function () { show(); }).catch(function () { show(); });
     });
   }

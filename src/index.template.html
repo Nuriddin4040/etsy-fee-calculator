@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Etsy Fee Calculator 2026: Fees by Country &amp; Profit</title>
-<meta name="description" content="Free Etsy fee calculator for 2026: listing, transaction, processing and ads fees for {{COUNTRY_COUNT}} countries and digital products, plus the price you need for your profit.">
-<link rel="canonical" href="{{SITE_URL}}/">
+<title>{{TITLE}}</title>
+<meta name="description" content="{{DESC}}">
+<link rel="canonical" href="{{SITE_URL}}{{PATH}}">
 <meta name="robots" content="index, follow, max-image-preview:large">
 {{GSC_META}}
 <meta name="theme-color" content="#edf0ec">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Etsy Fee Calculator">
-<meta property="og:title" content="Etsy Fee Calculator 2026: Fees by Country &amp; Profit">
-<meta property="og:description" content="See what Etsy keeps from every sale and what price you need to hit your profit. Rates for {{COUNTRY_COUNT}} countries and digital products.">
-<meta property="og:url" content="{{SITE_URL}}/">
+<meta property="og:title" content="{{TITLE}}">
+<meta property="og:description" content="{{OG_DESC}}">
+<meta property="og:url" content="{{SITE_URL}}{{PATH}}">
 <meta property="og:image" content="{{SITE_URL}}/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -24,16 +24,12 @@
 <style>{{CSS}}</style>
 <script type="application/ld+json">{{JSONLD}}</script>
 </head>
-<body>
+<body data-country="{{DEFAULT_COUNTRY}}">
 <header class="top">
   <div class="wrap">
     <a class="mark" href="/">Etsy Fee Calculator</a>
     <nav aria-label="Sections">
-      <a href="#calculator">Calculator</a>
-      <a href="#digital-products">Digital products</a>
-      <a href="#by-country">By country</a>
-      <a href="#offsite-ads">Offsite Ads</a>
-      <a href="#faq">FAQ</a>
+      {{NAV}}
     </nav>
   </div>
 </header>
@@ -42,8 +38,8 @@
 <section class="hero" id="calculator" aria-labelledby="h1">
   <div class="wrap hero-grid">
     <div>
-      <h1 id="h1">Etsy fee calculator</h1>
-      <p class="lede">Enter a price and see what Etsy keeps: listing fee, transaction fee, payment processing and ads. Then see what you take home. Built from Etsy's own 2026 fee pages, for sellers in {{COUNTRY_COUNT}} countries.</p>
+      <h1 id="h1">{{H1}}</h1>
+      <p class="lede">{{LEDE}}</p>
 
       <div class="calc">
         <div>
@@ -158,13 +154,11 @@
 
 <section class="faq" id="faq" aria-labelledby="faq-h">
   <div class="wrap">
-    <h2 id="faq-h">Etsy fees: common questions</h2>
+    <h2 id="faq-h">{{FAQ_H}}</h2>
     {{FAQ}}
     <h2>Sources</h2>
     <ul>
-      <li><a href="https://www.etsy.com/legal/fees" rel="noopener">Etsy Fees &amp; Payments Policy</a>: listing, transaction, Offsite Ads and currency conversion fees</li>
-      <li><a href="https://www.etsy.com/legal/etsy-payments" rel="noopener">Etsy Payments Policy</a>: payment processing fees by country</li>
-      <li><a href="https://help.etsy.com/hc/en-us/articles/1500011073202" rel="noopener">What is a Regulatory Operating Fee?</a> (Etsy Help Center)</li>
+      {{SOURCES}}
     </ul>
   </div>
 </section>
